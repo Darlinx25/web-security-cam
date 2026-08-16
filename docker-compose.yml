@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-clips}
+      MARIADB_USER: ${DB_USER:-clipapp}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-clipapp}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: ./app
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-clips}
+      DB_USER: ${DB_USER:-clipapp}
+      DB_PASSWORD: ${DB_PASSWORD:-clipapp}
+      CLIP_DIR: /var/www/html/clips
+      API_TOKEN: ${API_TOKEN:-cambia-este-token}
+      GO2RTC_HOST: ${GO2RTC_HOST:-192.168.1.60}
+      GO2RTC_HLS_PORT: ${GO2RTC_HLS_PORT:-1984}
+      CAMERA_ENABLED_PUERTA: ${CAMERA_ENABLED_PUERTA:-0}
+    volumes:
+      - ./app:/var/www/html
+      - ./clips:/var/www/html/clips
+    depends_on:
+      db:
+        condition: service_healthy
+
+  recorder:
+    build: ./recorder
+    restart: unless-stopped
+    volumes:
+      - ./clips:/clips
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      RTSP_URL: rtsp://${GO2RTC_HOST:-192.168.1.60}:${GO2RTC_RTSP_PORT:-8554}/${CAMERA:-patio}
+      CAMERA: ${CAMERA:-patio}
+      SEGMENT_SECONDS: ${SEGMENT_SECONDS:-30}
+      RETENTION_DAYS: ${RETENTION_DAYS:-5}
+      AUDIO: ${AUDIO:-1}
+      REGISTER_URL: http://web/api/register.php
+      CLEANUP_URL: http://web/api/cleanup.php
+      API_TOKEN: ${API_TOKEN:-cambia-este-token}
+    depends_on:
+      - web
+
+volumes:
+  dbdata:
