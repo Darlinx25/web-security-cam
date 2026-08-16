@@ -16,8 +16,11 @@ $activas = camerayActivas();
         <span class="cam-name"><?= htmlspecialchars($cam['name']) ?></span>
       </div>
       <div class="cam-body">
-        <video id="v-<?= htmlspecialchars($id) ?>" autoplay muted playsinline controls></video>
+        <video id="v-<?= htmlspecialchars($id) ?>" autoplay muted playsinline></video>
         <div class="off" id="off-<?= htmlspecialchars($id) ?>">Sin se&ntilde;al...</div>
+        <div class="cam-controls">
+          <button class="cam-btn" onclick="toggleFullscreen(this)" title="Pantalla completa">&#x26F6;</button>
+        </div>
       </div>
     </section>
     <?php endforeach; ?>

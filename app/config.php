@@ -22,7 +22,7 @@ $CAMERAS = array(
         'name'    => 'Puerta',
         'hls'     => 'http://' . $GO2RTC_HOST . ':' . $GO2RTC_HLS_PORT . '/api/stream.m3u8?src=puerta',
         'stream_html' => 'http://' . $GO2RTC_HOST . ':' . $GO2RTC_HLS_PORT . '/stream.html?src=puerta',
-        'enabled' => getenv('CAMERA_ENABLED_PUERTA') === '1',
+        'enabled' => getenv('CAMERA_ENABLED_PUERTA') !== '0',
     ),
 );
 

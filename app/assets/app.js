@@ -1,5 +1,5 @@
 // Reproduccion en vivo via HLS (hls.js), con fallback al reproductor de go2rtc
-// si el video no avanza (corte de se�al, navegador sin soporte, etc).
+// si el video no avanza (corte de señal, navegador sin soporte, etc).
 
 window.playingSince = {};
 
@@ -71,7 +71,6 @@ function iniciar(id, cam) {
     contador++;
     if (contador >= 3 && !avanzo) {
       clearInterval(vigilante);
-      // dar 4s mas de margen por si esta buffereando
       setTimeout(function () {
         var a2 = video.currentTime || 0;
         if (Math.abs(a2 - actual) < 0.01) {
@@ -101,3 +100,26 @@ function fallbackGo2rtc(id, cam) {
   if (dot) dot.classList.add('on');
   if (video) video.replaceWith(ifr);
 }
+
+function toggleFullscreen(btn) {
+  var cam = btn.closest('.cam');
+  if (!cam) return;
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else if (cam.requestFullscreen) {
+    cam.requestFullscreen();
+  } else if (cam.webkitRequestFullscreen) {
+    cam.webkitRequestFullscreen();
+  }
+}
+
+// Actualizar icono de fullscreen cuando cambia el estado
+document.addEventListener('fullscreenchange', function () {
+  var btns = document.querySelectorAll('.cam-btn');
+  btns.forEach(function (btn) {
+    var cam = btn.closest('.cam');
+    var isFs = document.fullscreenElement === cam;
+    btn.innerHTML = isFs ? '&#x2716;' : '&#x26F6;';
+  });
+});
