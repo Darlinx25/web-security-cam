@@ -1,20 +1,16 @@
 # CamWeb - Camaras en vivo + grabaciones
 
-Web para ver camaras en vivo y consultar clips grabados cada 30 segundos.
+Web para ver camaras en vivo y consultar clips grabados cada 3 minutos.
 Funciona en celular y compu. Las dos camaras (patio y puerta) se graban
 y se ven simultaneamente.
 
 ## Como funciona
 
 ```
-Cámara patio (192.168.1.2) ──┐
-                             ├─→  go2rtc (en la laptop) → web + 2 grabadores
-Cámara puerta (192.168.1.3) ─┘
+Cámara patio (192.168.1.x) ──┐
+                             ├─→  go2rtc (en el servidor) → web + 2 grabadores
+Cámara puerta (192.168.1.x) ─┘
 ```
-
-Todo corre en la laptop: go2rtc, la web, la base y los grabadores. Es 100%
-independiente de la torre (la laptop toma el video directo de las camaras).
-
 ## Componentes (docker compose)
 
 | Servicio | Imagen | Funcion |
@@ -89,9 +85,7 @@ independiente de la torre (la laptop toma el video directo de las camaras).
 
 ## Notas
 
-- La laptop debe estar en la misma red que las camaras (192.168.1.x).
+- El server debe estar en la misma red que las camaras (192.168.1.x).
 - `go2rtc/go2rtc.yaml` tiene las IP y credenciales de las camaras.
-- La web usa por defecto el go2rtc local; si queres apuntar a otro, pone la
+- La web usa por defecto el go2rtc local; si queres apuntar a otro, hay que la
   IP en `GO2RTC_HOST`.
-- El go2rtc de la laptop no interfiere con el de la torre: las camaras aceptan
-  varias conexiones a la vez.
