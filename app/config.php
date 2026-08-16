@@ -1,8 +1,10 @@
 <?php
 date_default_timezone_set(getenv('TZ') ?: 'America/Argentina/Buenos_Aires');
 
-// Host donde corre go2rtc (visto por el NAVEGADOR del cliente)
-$GO2RTC_HOST = getenv('GO2RTC_HOST') ?: '192.168.1.60';
+// Host donde corre go2rtc (visto por el NAVEGADOR del cliente).
+// Si GO2RTC_HOST esta vacio, usa la misma maquina que sirvio la pagina
+// (la laptop con go2rtc en docker), asi no hay que conocer la IP.
+$GO2RTC_HOST = getenv('GO2RTC_HOST') ?: (preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? 'localhost') ?: 'localhost');
 $GO2RTC_HLS_PORT = getenv('GO2RTC_HLS_PORT') ?: '1984';
 
 // Directorio de clips (montado dentro del contenedor web)

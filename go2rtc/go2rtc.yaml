@@ -1,0 +1,12 @@
+api:
+  listen: ":1984"
+rtsp:
+  listen: ":8554"
+webrtc:
+  listen: ":8555"
+
+streams:
+  patio:
+    - rtsp://super:qianniaosuper@192.168.1.2:8554/profile0#transport=tcp
+  puerta:
+    - rtsp://super:qianniaosuper@192.168.1.3:8554/profile0#transport=tcp

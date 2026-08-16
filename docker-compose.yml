@@ -1,4 +1,16 @@
 services:
+  go2rtc:
+    image: alexxit/go2rtc:latest
+    restart: unless-stopped
+    ports:
+      - "1984:1984"
+      - "8554:8554"
+      - "8555:8555"
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+    volumes:
+      - ./go2rtc:/config
+
   db:
     image: mariadb:11
     restart: unless-stopped
@@ -31,7 +43,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-clipapp}
       CLIP_DIR: /var/www/html/clips
       API_TOKEN: ${API_TOKEN:-cambia-este-token}
-      GO2RTC_HOST: ${GO2RTC_HOST:-192.168.1.60}
+      GO2RTC_HOST: ${GO2RTC_HOST:-}
       GO2RTC_HLS_PORT: ${GO2RTC_HLS_PORT:-1984}
       CAMERA_ENABLED_PUERTA: ${CAMERA_ENABLED_PUERTA:-0}
     volumes:
@@ -49,7 +61,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: ${TZ:-America/Argentina/Buenos_Aires}
-      RTSP_URL: rtsp://${GO2RTC_HOST:-192.168.1.60}:${GO2RTC_RTSP_PORT:-8554}/${CAMERA:-patio}
+      RTSP_URL: rtsp://go2rtc:8554/${CAMERA:-patio}
       CAMERA: ${CAMERA:-patio}
       SEGMENT_SECONDS: ${SEGMENT_SECONDS:-30}
       RETENTION_DAYS: ${RETENTION_DAYS:-5}
@@ -58,6 +70,7 @@ services:
       CLEANUP_URL: http://web/api/cleanup.php
       API_TOKEN: ${API_TOKEN:-cambia-este-token}
     depends_on:
+      - go2rtc
       - web
 
 volumes:
