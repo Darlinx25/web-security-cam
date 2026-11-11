@@ -25,14 +25,25 @@ $clips = array();
 $source = 'fs';
 
 if ($pdo !== null) {
-    $stmt = $pdo->prepare(
-        'SELECT id, camera, file_path, size_bytes, duration,
-                DATE_FORMAT(start_time, "%Y-%m-%d %H:%i:%s") AS start
-         FROM clips
-         WHERE camera = ? AND DATE(start_time) = ?
-         ORDER BY start_time DESC'
-    );
-    $stmt->execute(array($cam, $fecha));
+    if ($cam) {
+        $stmt = $pdo->prepare(
+            'SELECT id, camera, file_path, size_bytes, duration,
+                    DATE_FORMAT(start_time, "%Y-%m-%d %H:%i:%s") AS start
+             FROM clips
+             WHERE camera = ? AND DATE(start_time) = ?
+             ORDER BY start_time DESC'
+        );
+        $stmt->execute(array($cam, $fecha));
+    } else {
+        $stmt = $pdo->prepare(
+            'SELECT id, camera, file_path, size_bytes, duration,
+                    DATE_FORMAT(start_time, "%Y-%m-%d %H:%i:%s") AS start
+             FROM clips
+             WHERE DATE(start_time) = ?
+             ORDER BY start_time DESC'
+        );
+        $stmt->execute(array($fecha));
+    }
     $rows = $stmt->fetchAll();
     if (!empty($rows)) {
         $source = 'db';
@@ -54,8 +65,14 @@ if ($pdo !== null) {
 // Si la base no tenia datos (o no existe), leer del filesystem
 if ($source === 'fs') {
     $dir = $CLIP_DIR . '/' . $relDir;
-    $patron = "$dir/" . preg_quote($cam, '/') . '_*.mp4';
-    foreach (glob($patron) ?: array() as $archivo) {
+    if ($cam) {
+        $patron = "$dir/" . preg_quote($cam, '/') . '_*.mp4';
+        $matches = glob($patron) ?: array();
+    } else {
+        $patron = "$dir/*_*.mp4";
+        $matches = glob($patron) ?: array();
+    }
+    foreach ($matches as $archivo) {
         $base = basename($archivo);
         $ruta = "$relDir/$base";
         $fechaHora = array();
@@ -67,7 +84,7 @@ if ($source === 'fs') {
         }
         $clips[] = array(
             'id' => 0,
-            'camera' => $cam,
+            'camera' => $cam ?: preg_replace('/_\\d{8}_\\d{6}\\.mp4$/', '', $base),
             'file' => $ruta,
             'url' => '/clips/' . $ruta,
             'thumb' => '/clips/' . preg_replace('/\.mp4$/', '.jpg', $ruta),

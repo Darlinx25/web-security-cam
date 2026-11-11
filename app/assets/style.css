@@ -8,6 +8,7 @@
   --accent: #2f9e6e;
   --accent2: #40bf85;
   --danger: #c04949;
+  --danger2: #e05555;
   --radius: 14px;
   --radius-sm: 10px;
   --nav-h: 62px;
@@ -74,8 +75,8 @@ html, body {
 /* ===== LIVE VIEW ===== */
 
 .live-wrap {
-  padding: 12px;
-  padding-bottom: calc(var(--nav-h) + 12px);
+  padding: 6px;
+  padding-bottom: calc(var(--nav-h) + 6px);
 }
 
 .live-grid {
@@ -134,6 +135,7 @@ html, body {
   display: block;
   object-fit: contain;
   background: #000;
+  cursor: pointer;
 }
 
 .cam-body iframe {
@@ -239,6 +241,11 @@ html, body {
 
 .btn:active { transform: scale(.97); background: var(--accent2); }
 
+.btn-danger { background: var(--danger); }
+.btn-danger:active { background: var(--danger2); }
+
+.btn-danger:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
 .status { color: var(--muted); margin-bottom: 10px; font-size: 13px; }
 
 .clips-list { display: flex; flex-direction: column; gap: 8px; }
@@ -253,16 +260,17 @@ html, body {
 .clip-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 10px 10px;
   cursor: pointer;
+  flex-wrap: wrap;
 }
 
 .clip-row:active { background: var(--panel2); }
 
 .clip-thumb {
-  width: 110px;
-  height: 62px;
+  width: 90px;
+  height: 50px;
   object-fit: cover;
   border-radius: 8px;
   background: #000;
@@ -272,17 +280,23 @@ html, body {
 .clip-info { flex: 1; min-width: 0; }
 
 .clip-hora {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .clip-meta {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.clip-actions { display: flex; gap: 6px; flex: none; }
+.clip-actions { display: flex; gap: 6px; flex: none; width: 100%; }
 
 .btn-small {
   font-size: 13px;
@@ -298,11 +312,95 @@ html, body {
 .btn-play:active { background: var(--accent2); }
 .btn-dl { background: var(--panel3); color: var(--text); }
 .btn-dl:active { background: #2c3540; }
+.btn-del { background: transparent; color: var(--danger); font-size: 18px; padding: 8px 10px; }
+.btn-del:active { background: rgba(192,73,73,.15); color: var(--danger2); }
 
 .clip-video { display: none; padding: 0 12px 12px; }
 .clip-video video { width: 100%; border-radius: 8px; background: #000; }
 
 .vacio { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 16px; }
+
+/* ===== BULK DELETE ===== */
+
+.bulk-delete {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.bulk-delete h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--danger);
+}
+
+.bulk-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.bulk-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  flex: 1;
+  min-width: 120px;
+}
+
+.bulk-row input,
+.bulk-row select {
+  font-size: 15px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.08);
+  background: var(--panel2);
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ===== PAGINATION ===== */
+
+.clips-paginado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-page {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.1);
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+
+.btn-page:active:not(:disabled) { background: var(--accent); }
+.btn-page:disabled { opacity: .3; cursor: not-allowed; }
+
+.page-info {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
 
 /* ===== FULLSCREEN ===== */
 
@@ -324,7 +422,7 @@ html, body {
   object-fit: contain;
 }
 
-/* ===== TABLET / DESKTOP ===== */
+/* ===== TABLET ===== */
 
 @media (min-width: 640px) {
   .live-grid {
@@ -337,17 +435,34 @@ html, body {
   .cam-btn { width: 40px; height: 40px; font-size: 18px; }
 
   .clips-wrap { padding: 20px; }
-  .clip-thumb { width: 132px; height: 74px; }
-  .clip-hora { font-size: 17px; }
+  .clip-thumb { width: 120px; height: 68px; }
+  .clip-hora { font-size: 15px; }
+  .clip-meta { font-size: 13px; }
+  .clip-actions { width: auto; }
 }
+
+/* ===== DESKTOP - camaras grandes ===== */
 
 @media (min-width: 960px) {
   .live-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-    max-width: 1100px;
+    max-width: 100%;
+    padding: 0 20px;
+  }
+
+  .live-wrap {
+    padding: 20px;
+    max-width: 1600px;
     margin: 0 auto;
   }
 
-  .live-wrap { padding: 20px; }
+  .cam-body {
+    aspect-ratio: 16/9;
+  }
+
+  .cam-head { font-size: 16px; padding: 12px 18px; }
+  .cam-btn { width: 44px; height: 44px; font-size: 20px; }
+
+  .clips-wrap { max-width: 1100px; }
 }

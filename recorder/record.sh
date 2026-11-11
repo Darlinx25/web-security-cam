@@ -34,7 +34,7 @@ cleanup() {
     log "Limpieza: borrando clips de mas de ${DAYS} dias"
     find "$CLIPS" -type f -name '*.mp4' -mtime "+${DAYS}" -delete 2>/dev/null
     find "$CLIPS" -type f -name '*.jpg' -mtime "+${DAYS}" -delete 2>/dev/null
-    find "$CLIPS" -type d -empty -delete 2>/dev/null
+    find "$CLIPS" -mindepth 1 -type d ! -path "${CLIPS}/tmp" -empty -delete 2>/dev/null
     [ -z "$CLEAN_URL" ] && return 0
     curl -s -m 10 -X POST "$CLEAN_URL" -H "X-API-Token: $TOKEN" >/dev/null 2>&1 || true
 }
@@ -50,7 +50,7 @@ while true; do
     YMD=$(date +%Y/%m/%d)
     TS=$(date +%Y%m%d_%H%M%S)
     DIR="$CLIPS/$YMD"
-    mkdir -p "$DIR"
+    mkdir -p "$DIR" "$CLIPS/tmp"
     START=$(date +%s)
     NAME="${CAM}_${TS}"
     TMP="$CLIPS/tmp/${NAME}.part.mp4"
