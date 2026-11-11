@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
       iniciar(id, window.CAMERAS[id]);
     }
   }
+  configurarDual();
 });
 
 function iniciar(id, cam) {
@@ -114,12 +115,65 @@ function toggleFullscreen(btn) {
   }
 }
 
-// Actualizar icono de fullscreen cuando cambia el estado
-document.addEventListener('fullscreenchange', function () {
+function configurarDual() {
+  var btn = document.getElementById('btn-dual');
+  var close = document.getElementById('btn-dual-close');
+  var grid = document.querySelector('.live-grid');
+  if (!btn || !grid) return;
+  if (Object.keys(window.CAMERAS || {}).length < 2) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.addEventListener('click', function () {
+    entrarDual(grid);
+  });
+  if (close) {
+    close.addEventListener('click', function () {
+      salirDual(grid);
+    });
+  }
+}
+
+function entrarDual(grid) {
+  document.body.classList.add('dual-fs');
+  grid.classList.add('dual-fs');
+  try {
+    if (grid.requestFullscreen) {
+      var p = grid.requestFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    } else if (grid.webkitRequestFullscreen) {
+      grid.webkitRequestFullscreen();
+    }
+  } catch (e) {}
+}
+
+function salirDual(grid) {
+  document.body.classList.remove('dual-fs');
+  grid.classList.remove('dual-fs');
+  var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fsEl === grid) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+}
+
+function actualizarPantallaCompleta() {
+  var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  var grid = document.querySelector('.live-grid');
+  if (grid && fsEl !== grid) {
+    document.body.classList.remove('dual-fs');
+    grid.classList.remove('dual-fs');
+  }
   var btns = document.querySelectorAll('.cam-btn');
   btns.forEach(function (btn) {
     var cam = btn.closest('.cam');
-    var isFs = document.fullscreenElement === cam;
+    var isFs = fsEl === cam;
     btn.innerHTML = isFs ? '&#x2716;' : '&#x26F6;';
   });
-});
+}
+
+document.addEventListener('fullscreenchange', actualizarPantallaCompleta);
+document.addEventListener('webkitfullscreenchange', actualizarPantallaCompleta);

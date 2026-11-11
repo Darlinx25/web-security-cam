@@ -22,7 +22,13 @@ $activas = camerayActivas();
       </div>
     </section>
     <?php endforeach; ?>
+    <button type="button" id="btn-dual-close" class="dual-close" aria-label="Salir de pantalla completa">&#x2715;</button>
   </div>
+  <?php if (count($activas) >= 2): ?>
+  <button type="button" id="btn-dual" class="dual-fab" title="Ver las dos camaras a la vez">
+    <span class="dual-fab-icon">&#x26F6;</span> 2 CAM
+  </button>
+  <?php endif; ?>
   <?php endif; ?>
 </main>
 <script src="assets/hls.min.js"></script>
