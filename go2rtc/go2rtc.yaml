@@ -7,6 +7,6 @@ webrtc:
 
 streams:
   patio:
-    - rtsp://super:qianniaosuper@192.168.1.2:8554/profile0#transport=tcp
+    - rtsp://super:qianniaosuper@192.168.1.7:8554/profile0#transport=tcp
   puerta:
     - rtsp://super:qianniaosuper@192.168.1.3:8554/profile0#transport=tcp
