@@ -45,6 +45,7 @@ services:
       API_TOKEN: ${API_TOKEN:-cambia-este-token}
       GO2RTC_HOST: ${GO2RTC_HOST:-}
       GO2RTC_HLS_PORT: ${GO2RTC_HLS_PORT:-1984}
+      PANEL_URL: ${PANEL_URL:-}
     volumes:
       - ./app:/var/www/html
       - ./clips:/var/www/html/clips

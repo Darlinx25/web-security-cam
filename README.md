@@ -64,6 +64,9 @@ Cámara puerta (192.168.1.x) ─┘
   compu. Cada una tiene boton de pantalla completa. Si el video se corta, cae
   solo al reproductor de go2rtc (iframe).
 - **GRABACIONES**: buscar por dia y camara, ver inline, descargar.
+- **PANEL**: acceso directo al panel de estado del servidor (Homepage, puerto
+  3000). Usa la misma IP desde la que entraste, o la que definas en
+  `PANEL_URL`.
 
 ## Como funcionan los clips
 

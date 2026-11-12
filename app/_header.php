@@ -3,6 +3,9 @@
 if (!isset($ACTIVE)) {
     $ACTIVE = 'live';
 }
+// URL del panel de estado (Homepage). Si PANEL_URL esta vacio, apunta a la
+// misma maquina que sirvio la pagina, en el puerto 3000.
+$PANEL_URL = getenv('PANEL_URL') ?: 'http://' . (preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? 'localhost') ?: 'localhost') . ':3000';
 ?><!doctype html>
 <html lang="es">
 <head>
@@ -21,5 +24,10 @@ if (!isset($ACTIVE)) {
   <nav class="nav">
     <a href="index.php" class="<?= $ACTIVE === 'live' ? 'active' : '' ?>">EN VIVO</a>
     <a href="clips.php" class="<?= $ACTIVE === 'clips' ? 'active' : '' ?>">GRABACIONES</a>
+    <a href="<?= htmlspecialchars($PANEL_URL) ?>" class="panel-link"
+       target="_blank" rel="noopener" title="Panel de estado del servidor"
+       aria-label="Abrir el panel de estado del servidor">
+      <span class="panel-icon">&#9638;</span><span class="panel-label">PANEL</span>
+    </a>
   </nav>
 </header>

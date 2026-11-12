@@ -72,6 +72,27 @@ html, body {
 
 .nav a:active { transform: scale(.96); }
 
+.nav a.panel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.nav a.panel-link:active {
+  background: var(--panel3);
+}
+
+.panel-icon { font-size: 14px; line-height: 1; opacity: .9; }
+
+@media (max-width: 480px) {
+  .nav { gap: 4px; }
+  .nav a { padding: 8px 11px; }
+  .nav a.panel-link { padding: 8px 11px; }
+  .panel-label { display: none; }
+}
+
 /* ===== LIVE VIEW ===== */
 
 .live-wrap {
