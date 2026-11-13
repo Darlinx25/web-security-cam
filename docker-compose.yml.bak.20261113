@@ -1,0 +1,116 @@
+services:
+  go2rtc:
+    image: alexxit/go2rtc:latest
+    restart: unless-stopped
+    ports:
+      - "1984:1984"
+      - "8554:8554"
+      - "8555:8555"
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+    volumes:
+      - ./go2rtc:/config
+
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_NAME:-clips}
+      MARIADB_USER: ${DB_USER:-clipapp}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-clipapp}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: ./app
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-clips}
+      DB_USER: ${DB_USER:-clipapp}
+      DB_PASSWORD: ${DB_PASSWORD:-clipapp}
+      CLIP_DIR: /var/www/html/clips
+      API_TOKEN: ${API_TOKEN:-cambia-este-token}
+      GO2RTC_HOST: ${GO2RTC_HOST:-}
+      GO2RTC_HLS_PORT: ${GO2RTC_HLS_PORT:-1984}
+      PANEL_URL: ${PANEL_URL:-}
+    volumes:
+      - ./app:/var/www/html
+      - ./clips:/var/www/html/clips
+    depends_on:
+      db:
+        condition: service_healthy
+
+  recorder-patio:
+    build: ./recorder
+    restart: unless-stopped
+    container_name: recorder-patio
+    volumes:
+      - ./clips:/clips
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      RTSP_URL: rtsp://go2rtc:8554/patio
+      CAMERA: patio
+      SEGMENT_SECONDS: ${SEGMENT_SECONDS:-30}
+      RETENTION_DAYS: ${RETENTION_DAYS:-5}
+      AUDIO: ${AUDIO:-1}
+      REGISTER_URL: http://web/api/register.php
+      CLEANUP_URL: http://web/api/cleanup.php
+      API_TOKEN: ${API_TOKEN:-cambia-este-token}
+    depends_on:
+      - go2rtc
+      - web
+
+  recorder-puerta:
+    build: ./recorder
+    restart: unless-stopped
+    container_name: recorder-puerta
+    volumes:
+      - ./clips:/clips
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      RTSP_URL: rtsp://go2rtc:8554/puerta
+      CAMERA: puerta
+      SEGMENT_SECONDS: ${SEGMENT_SECONDS:-30}
+      RETENTION_DAYS: ${RETENTION_DAYS:-5}
+      AUDIO: ${AUDIO:-1}
+      REGISTER_URL: http://web/api/register.php
+      CLEANUP_URL: http://web/api/cleanup.php
+      API_TOKEN: ${API_TOKEN:-cambia-este-token}
+    depends_on:
+      - go2rtc
+      - web
+
+  discover:
+    build: ./discover
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./go2rtc:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: ${TZ:-America/Argentina/Buenos_Aires}
+      SUBNET: ${SUBNET:-192.168.1}
+      KNOWN_PUERTA: ${KNOWN_PUERTA:-192.168.1.6}
+      EXCLUDE_IPS: ${EXCLUDE_IPS:-192.168.1.1 192.168.1.9 192.168.1.60}
+      INTERVAL: ${DISCOVER_INTERVAL:-300}
+      RTSP_USER: super
+      RTSP_PASS: qianniaosuper
+
+volumes:
+  dbdata:
